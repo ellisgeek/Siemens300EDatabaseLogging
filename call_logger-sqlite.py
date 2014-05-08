@@ -3,36 +3,88 @@ This script depends on the following Python
 Libraries that do not ship with python!
 
 PySerial - http://pyserial.sourceforge.net/
-MySQL Connector - http://dev.mysql.com/downloads/connector/python/
 """
 
+####
+# SETTINGS
+####
+
+
+#Path to the database that you want to log to
+database   = "pbx.db"
+
+#Serial port you want to log to
+serialPort = "COM1"
+
+#Rate at which the serial port should communicate
+baudRate   = 9600
+
+
+
+
+
+
+
+
+
+
+
+#DO NOT EDIT BELOW THIS LINE
+###############################################################################
 
 import sqlite3
 import serial
 from time import sleep
 
 port = "COM1"
-ser = serial.Serial("COM1", 9600)
-string = ""
+ser = serial.Serial(serialPort, baudRate)
+string = NULL
 
-db = sqlite3.connect('pbx.db')
+db = sqlite3.connect(database)
 cursor = db.cursor()
-#cursor.execute('')
+cursor.execute("CREATE TABLE IF NOT EXISTS calls ( 
+    callid           INTEGER        PRIMARY KEY,
+    service          INTEGER( 1 ),
+    source_type      INTEGER( 1 ),
+    date             DATETIME( 8 ),
+    time             DATETIME( 5 ),
+    duration         DATETIME( 8 ),
+    flags            TEXT( 7 ),
+    source_number    INTEGER( 15 ),
+    dest_number      INTEGER( 22 ),
+    diverting_number INTEGER( 15 ),
+    access_code      INTEGER( 5 ),
+    source_trunk     INTEGER( 4 ),
+    dest_trunk       INTEGER( 4 ),
+    account          INTEGER( 6 ),
+    pin              INTEGER( 12 ),
+    modem_pool       INTEGER( 2 ) 
+);")
+db.commit()
 
 """
 Call Format:
 "02 04/28/14 05:31 00:00:18 --1---  1380            18772989943                            9     0    45   000000                "
 """
 while True:
-    #data = "02 04/28/14 05:31 00:00:18 --1---  1380            18772989943                            9     0    45   000000                "
+	#Read data from the serial port
     data = ser.readline()
+	
+	#only process the data if we get stuff over the line
     if len(data) > 0:
-        print "Recieved data: " , data.rstrip('\r\n')
+        #print "Received data: " , data.rstrip('\r\n')
+		
+		#Strip Newlines out of the data so we don't screw up the next part
         string += data.rstrip('\r\n')
+		
+		#The PBX sends EXACTLY 128 Bytes of data for each call
+		#We take advantage of this in a pretty bad way and we have our fingers
+		#crossed that we NEVER get a partial line as that would break all rows after it
         if len(string) == 128:
-            #print ">128"
+			#not 100% sure why i put this here but it seems like a nice check
+			#to make sure that string gets cleared before it grabs more data.
             line = string
-            string = ""
+            string = NULL
 
             # Split data into useful segments
             service = line[0:1]
@@ -53,41 +105,49 @@ while True:
 
             #check strings for nullness
             if service.isspace():
-                service = ""
+                service = NULL
             if source_type.isspace():
-                source_type = ""
+                source_type = NULL
             if date.isspace():
-                date = ""
+                date = NULL
             if time.isspace():
-                time = ""
+                time = NULL
             if duration.isspace():
-                duration = ""
+                duration = NULL
             if flags.isspace():
-                flags = ""
+                flags = NULL
             if source_number.isspace():
-                source_number = ""
+                source_number = NULL
             if dest_number.isspace():
-                dest_number = ""
+                dest_number = NULL
             if diverting_number.isspace():
-                diverting_number = ""
+                diverting_number = NULL
             if access_code.isspace():
-                access_code = ""
+                access_code = NULL
             if source_trunk.isspace():
-                source_trunk = ""
+                source_trunk = NULL
             if dest_trunk.isspace():
-                dest_trunk = ""
+                dest_trunk = NULL
             if account.isspace():
-                account = ""
+                account = NULL
             if pin.isspace():
-                pin = ""
+                pin = NULL
             if modem_pool.isspace():
-                modem_pool = ""
+                modem_pool = NULL
+			
+			#Insert gathered data into database and commit changes
+			#(might be better to have a separate loop for committing
+			#changes as the disk may get bogged down when under heavy call load)
+			#Also the below line is way too long but i can't think of a way to shorten it...
             query = "INSERT INTO calls (service,source_type,date,time,duration,flags,source_number,dest_number,diverting_number,access_code,source_trunk,dest_trunk,account,pin,modem_pool) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % (service,source_type,date,time,duration,flags,source_number,dest_number,diverting_number,access_code,source_trunk,dest_trunk,account,pin,modem_pool)
             cursor.execute(query)
             db.commit()
+			
+			#print call log line to stdout
             print line
+			
+	#Wait an obscenely small amount of time between loops so we don't eat CPU time.
     sleep(0.001)
-    #print 'Ping!\n'
 
 db.close()
 ser.close()
