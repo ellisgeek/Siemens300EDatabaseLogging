@@ -38,7 +38,7 @@ from time import sleep
 
 port = "COM1"
 ser = serial.Serial(serialPort, baudRate)
-string = NULL
+string = None
 
 db = sqlite3.connect(database)
 cursor = db.cursor()
@@ -84,7 +84,7 @@ while True:
 			#not 100% sure why i put this here but it seems like a nice check
 			#to make sure that string gets cleared before it grabs more data.
             line = string
-            string = NULL
+            string = None
 
             # Split data into useful segments
             service = line[0:1]
@@ -103,37 +103,37 @@ while True:
             pin = line[113:126]
             modem_pool = line[126:128]
 
-            #check strings for nullness
+            #check strings for Noneness
             if service.isspace():
-                service = NULL
+                service = None
             if source_type.isspace():
-                source_type = NULL
+                source_type = None
             if date.isspace():
-                date = NULL
+                date = None
             if time.isspace():
-                time = NULL
+                time = None
             if duration.isspace():
-                duration = NULL
+                duration = None
             if flags.isspace():
-                flags = NULL
+                flags = None
             if source_number.isspace():
-                source_number = NULL
+                source_number = None
             if dest_number.isspace():
-                dest_number = NULL
+                dest_number = None
             if diverting_number.isspace():
-                diverting_number = NULL
+                diverting_number = None
             if access_code.isspace():
-                access_code = NULL
+                access_code = None
             if source_trunk.isspace():
-                source_trunk = NULL
+                source_trunk = None
             if dest_trunk.isspace():
-                dest_trunk = NULL
+                dest_trunk = None
             if account.isspace():
-                account = NULL
+                account = None
             if pin.isspace():
-                pin = NULL
+                pin = None
             if modem_pool.isspace():
-                modem_pool = NULL
+                modem_pool = None
 			
 			#Insert gathered data into database and commit changes
 			#(might be better to have a separate loop for committing
