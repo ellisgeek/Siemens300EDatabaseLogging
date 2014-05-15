@@ -36,7 +36,6 @@ import sqlite3
 import serial
 from time import sleep
 
-port = "COM1"
 ser = serial.Serial(serialPort, baudRate)
 string = None
 
@@ -71,7 +70,7 @@ while True:
     data = ser.readline()
 	
 	#only process the data if we get stuff over the line
-    if len(data) > 0:
+    if data:
         #print "Received data: " , data.rstrip('\r\n')
 		
 		#Strip Newlines out of the data so we don't screw up the next part
@@ -138,9 +137,26 @@ while True:
 			#Insert gathered data into database and commit changes
 			#(might be better to have a separate loop for committing
 			#changes as the disk may get bogged down when under heavy call load)
-			#Also the below line is way too long but i can't think of a way to shorten it...
-            query = "INSERT INTO calls (service,source_type,date,time,duration,flags,source_number,dest_number,diverting_number,access_code,source_trunk,dest_trunk,account,pin,modem_pool) VALUES('%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s','%s');" % (service,source_type,date,time,duration,flags,source_number,dest_number,diverting_number,access_code,source_trunk,dest_trunk,account,pin,modem_pool)
-            cursor.execute(query)
+            query = [(
+				service,
+				source_type,
+				date,
+				time,
+				duration,
+				flags,
+				source_number,
+				dest_number,
+				diverting_number,
+				access_code,
+				source_trunk,
+				dest_trunk,
+				account,
+				pin,
+				modem_pool
+			)]
+            cursor.executemany(
+				"INSERT INTO calls VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);",
+				query)
             db.commit()
 			
 			#print call log line to stdout
