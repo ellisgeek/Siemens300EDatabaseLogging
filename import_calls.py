@@ -22,7 +22,7 @@ cursor = db.cursor()
 
 """
 Call Format:
-"02 04/28/14 05:31 00:00:18 --1---  1380            18772989943                            9     0    45   000000                "
+"02 04/28/14 05:31 00:00:18 --1---  1234            1234567890                            9     0    45   000000                "
 """
 for root, subFolders, files in os.walk(rootdir):
     if fnmatch.fnmatch(file, '*.txt') in files:
