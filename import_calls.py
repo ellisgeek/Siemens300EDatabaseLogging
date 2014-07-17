@@ -1,11 +1,57 @@
+######
+# 
+# The MIT License (MIT)
+# 
+# Copyright (c) 2014 Eliott Saille
+# 
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+# 
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
+# 
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+# 
+######
+
 """
+WARNING
+=======
+THIS SOFTWARE IS INCOMPLETE!!!
+IT IS UNABLE TO WALK DIRECTORIES
+IN THE FORMAT I NEED AT THIS TIME.
+
+
+IMPORTANT: IMPORT ANY EXISTING CALL LOGS BEFORE RUNNING THE NEW LOGGER OR THINGS WILL BE OUT OF ORDER!
+
 This script depends on the following Python
 Libraries that do not ship with python!
 
 PySerial - http://pyserial.sourceforge.net/
-MySQL Connector - http://dev.mysql.com/downloads/connector/python/
 """
 
+##        ##
+#          #
+  SETTINGS 
+#          #
+##        ##
+
+
+#Path to the database that you want to import calls to
+database   = "pbx.db"
+
+#DO NOT EDIT BELOW THIS LINE
+###############################################################################
 
 import sqlite3
 from fnmatch import fnmatch
@@ -17,7 +63,7 @@ lines = log.readlines()
 
 string = ""
 
-db = sqlite3.connect('pbx.db')
+db = sqlite3.connect(database)
 cursor = db.cursor()
 
 """
